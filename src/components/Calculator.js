@@ -6,7 +6,7 @@ import OffButton from './OffButton';
 import DecimalButton from './DecimalButton';
 import OperandButton from './OperandButton';
 
-import './calculator.scss';
+import './Calculator.scss';
 
 const MAX_DISPLAY_LENGTH = 10
 
@@ -31,6 +31,7 @@ function Calculator () {
   }
 
   const clearCalculator = () => {
+    setCurrentOperation('')
     setDisplayValue('0')
   }
 
@@ -68,7 +69,9 @@ function Calculator () {
   }
 
   const setOperation = (operation) => {
-    runCurrentOperation()
+    if (currentOperation) {
+      runCurrentOperation()
+    }
     setCurrentOperation(operation)
   }
 
@@ -78,11 +81,11 @@ function Calculator () {
   
 
   return (
-    <div>
+    <div className="calculator">
       <div className="display"> { displayValue } </div>
 
       <OffButton powerOff={turnOffCalculator.bind(this)} />
-      <ClearButton clear={clearCalculator.bind(this)} />
+      <div onClick={clearCalculator.bind(this)} > C </div>
       <OperandButton operator="%" setOperation={setOperation.bind(this)} />
       <OperandButton operator="/" setOperation={setOperation.bind(this)} />
 

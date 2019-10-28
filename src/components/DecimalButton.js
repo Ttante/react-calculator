@@ -8,3 +8,5 @@ function DecimalButton ({ addDecimal }) {
     </div>
   )
 }
+
+export default DecimalButton
