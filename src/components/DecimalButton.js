@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-function DecimalButton ({ addDecimal }) {
-  
+function DecimalButton ({ addDecimal, customClass }) {
+  const [isPressed, setIsPressed] = useState(false)
   return (
-    <div onClick={addDecimal}>
+    <div
+      className={`btn decimal bottom-row ${customClass} ${isPressed ? 'pressed' : ''}`}
+      onClick={() => { addDecimal()} }
+      onMouseDown={() => {setIsPressed(true)}}
+      onMouseUp={() => {setIsPressed(false)}}
+    >
       .
     </div>
   )

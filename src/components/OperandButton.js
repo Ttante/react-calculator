@@ -1,8 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-function OperandButton ({ operator, setOperation }) {
+function OperandButton ({ customClass, operator, setOperation }) {
+  const [isPressed, setIsPressed] = useState(false)
   return (
-    <div onClick={setOperation(operator)}>
+    <div
+      className={`btn operand ${customClass} ${isPressed ? 'pressed' : ''}`}
+      onClick={() => { setOperation(operator)} }
+      onMouseDown={() => {setIsPressed(true)}}
+      onMouseUp={() => {setIsPressed(false)}}
+    >
       {operator}
     </div>
   )

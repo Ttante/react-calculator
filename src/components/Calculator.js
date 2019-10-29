@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 
 
 import NumberButton from './NumberButton';
@@ -15,6 +15,16 @@ function Calculator () {
   const [previousValue, setPreviousValue] = useState('')
   const [currentOperation, setCurrentOperation] = useState('')
   // const [previousOperation, setPreviousOperation] = useState('')
+  const [pressedBtn, setPressedBtn] = useState('')
+  const displayInputRef = useRef(null)
+
+
+  useEffect(() => {
+    console.log('displayInputRef: ', displayInputRef)
+    if (displayInputRef.current) {
+      displayInputRef.current.focus()
+    }
+  })
 
   const addDecimalPoint = () => {
     if (!displayValue.includes('.') && atMaxDisplayLength()) {
@@ -23,9 +33,10 @@ function Calculator () {
   }
 
   const addNumber = (num) => {
+    console.log('the num: ', num)
     if (displayValue === '0') {
       setDisplayValue(num)
-    } else if (!atMaxDisplayLength()) {
+    } else {
       setDisplayValue(displayValue + num)
     }
   }
@@ -35,10 +46,17 @@ function Calculator () {
     setDisplayValue('0')
   }
 
+  const handleTextChange = (val) => {
+    console.log('hello')
+    console.log('val: ', val)
+    addNumber(val)
+  }
+
   const runCurrentOperation = () => {
     if (!currentOperation || !previousValue) {
       return
     }
+
 
     let result
     switch (currentOperation) {
@@ -49,7 +67,7 @@ function Calculator () {
         result = previousValue - displayValue
         break;
       case '%':
-          result = previousValue % displayValue
+          result = previousValue * (0.01) * displayValue
           break;
       case '*':
           result = previousValue * displayValue
@@ -65,7 +83,7 @@ function Calculator () {
   }
 
   const atMaxDisplayLength = () => {
-    return displayValue >= MAX_DISPLAY_LENGTH
+    return displayValue.length >= MAX_DISPLAY_LENGTH
   }
 
   const setOperation = (operation) => {
@@ -80,33 +98,57 @@ function Calculator () {
   }
   
 
+
   return (
     <div className="calculator">
-      <div className="display"> { displayValue } </div>
+      <input
+        type="text"
+        className="display"
+        onChange={(e) => { handleTextChange(e.target.value)} }
+        value={displayValue}
+        ref={displayInputRef}
+      />
 
-      <OffButton powerOff={turnOffCalculator.bind(this)} />
-      <div onClick={clearCalculator.bind(this)} > C </div>
-      <OperandButton operator="%" setOperation={setOperation.bind(this)} />
-      <OperandButton operator="/" setOperation={setOperation.bind(this)} />
+      <div className="btn-wrap">
+        <OffButton customClass="grid-1" powerOff={turnOffCalculator.bind(this)} />
+        <div
+          className={`btn clear grid-2 ${pressedBtn === 'clear' ? 'pressed' : ''}`}
+          onClick={() => { clearCalculator()} }
+          onMouseDown={() => { setPressedBtn('clear')} }
+          onMouseUp={() => { setPressedBtn('')} }
+          >
+            C
+        </div>
+        <OperandButton customClass="grid-3" operator="%" setOperation={() => { setOperation.bind(this)} } />
+        <OperandButton customClass="grid-4" operator="/" setOperation={() => { setOperation.bind(this)} } />
 
-      <NumberButton addNumber={addNumber.bind(this)} number="7" />
-      <NumberButton addNumber={addNumber.bind(this)} number="8" />
-      <NumberButton addNumber={addNumber.bind(this)} number="9" />
-      <OperandButton operator="x" setOperation={setOperation.bind(this)} />
+        <NumberButton customClass="grid-5" addNumber={addNumber.bind(this)} number="7" />
+        <NumberButton customClass="grid-6" addNumber={addNumber.bind(this)} number="8" />
+        <NumberButton customClass="grid-7" addNumber={addNumber.bind(this)} number="9" />
+        <OperandButton customClass="grid-8" operator="x" setOperation={() => { setOperation.bind(this)} } />
+        
+        <NumberButton customClass="grid-9" addNumber={addNumber.bind(this)} number="4" />
+        <NumberButton customClass="grid-10" addNumber={addNumber.bind(this)} number="5" />
+        <NumberButton customClass="grid-11" addNumber={addNumber.bind(this)} number="6" />
+        <OperandButton customClass="grid-12" operator="-" setOperation={() => { setOperation.bind(this)} } />
+        
+        <NumberButton customClass="grid-13" addNumber={addNumber.bind(this)} number="1" />
+        <NumberButton customClass="grid-14" addNumber={addNumber.bind(this)} number="2" />
+        <NumberButton customClass="grid-15" addNumber={addNumber.bind(this)} number="3" />
+        <OperandButton customClass="grid-16" operator="+" setOperation={() => { setOperation.bind(this)} } />
+
+        <NumberButton customClass="grid-17" addNumber={addNumber.bind(this)} number="0" />
+        <DecimalButton customClass="grid-18" addDecimal={() => { addDecimalPoint.bind(this)} } />
+        <div
+          className={`btn bottom-row equals grid-19 ${pressedBtn === 'equals' ? 'pressed' : ''}`}
+          onClick={() => { runCurrentOperation()} }
+          onMouseDown={() => {setPressedBtn('equals')}}
+          onMouseUp={() => {setPressedBtn('')}}
+          >
+            =
+          </div>
+      </div>
       
-      <NumberButton addNumber={addNumber.bind(this)} number="4" />
-      <NumberButton addNumber={addNumber.bind(this)} number="5" />
-      <NumberButton addNumber={addNumber.bind(this)} number="6" />
-      <OperandButton operator="-" setOperation={setOperation.bind(this)} />
-      
-      <NumberButton addNumber={addNumber.bind(this)} number="1" />
-      <NumberButton addNumber={addNumber.bind(this)} number="2" />
-      <NumberButton addNumber={addNumber.bind(this)} number="3" />
-      <OperandButton operator="+" setOperation={setOperation.bind(this)} />
-
-      <NumberButton addNumber={addNumber.bind(this)} number="0" />
-      <DecimalButton addDecimal={addDecimalPoint.bind(this)} />
-      <div onClick={runCurrentOperation()}>=</div>
     </div>
   )
 }

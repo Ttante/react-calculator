@@ -1,8 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-function OffButton ({ powerOff }) {
+function OffButton ({ customClass, powerOff }) {
+  const [isPressed, setIsPressed] = useState(false)
   return (
-    <div onClick={powerOff()}>
+      <div
+        className={`btn off ${customClass} ${isPressed ? 'pressed' : ''}`}
+        onMouseDown={() => {setIsPressed(true)}}
+        onMouseUp={() => {setIsPressed(false)} }
+        onClick={() => { powerOff() }}>
       Off
     </div>
   )
