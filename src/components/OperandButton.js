@@ -5,11 +5,11 @@ function OperandButton ({ customClass, operator, setOperation }) {
   return (
     <div
       className={`btn operand ${customClass} ${isPressed ? 'pressed' : ''}`}
-      onClick={() => { setOperation(operator)} }
+      onClick={() => { console.log('click'); setOperation(operator)} }
       onMouseDown={() => {setIsPressed(true)}}
       onMouseUp={() => {setIsPressed(false)}}
     >
-      {operator}
+      {/* {operator} */}
     </div>
   )
 }
