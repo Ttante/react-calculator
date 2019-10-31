@@ -5,9 +5,9 @@ function OperandButton ({ customClass, operator, setOperation }) {
   return (
     <div
       className={`btn operand ${customClass} ${isPressed ? 'pressed' : ''}`}
-      onClick={() => { console.log('click'); setOperation(operator)} }
-      onMouseDown={() => {setIsPressed(true)}}
-      onMouseUp={() => {setIsPressed(false)}}
+      // onPointerDown={() => { console.log('click'); setOperation(operator)} }
+      onPointerDown={() => { setOperation(operator); setIsPressed(true)}}
+      onPointerUp={() => {setIsPressed(false)}}
     >
       {/* {operator} */}
     </div>

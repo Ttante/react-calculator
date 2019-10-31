@@ -6,12 +6,12 @@ function NumberButton ({ addNumber, customClass, number }) {
   const [isPressed, setIsPressed] = useState(false)
   return (
     <div
+      data-number={String(number)}
       className={`btn number ${customClass} ${isPressed ? 'pressed' : ''}`}
-      onClick={() => { console.log('number: ', number); addNumber(number)} }
-      onMouseDown={() => {setIsPressed(true)}}
-      onMouseUp={() => {setIsPressed(false)}}
+      // onClick={() => { console.log('number: ', number); addNumber(number)} }
+      onPointerDown={() => { addNumber(number); setIsPressed(true)}}
+      onPointerUp={() => {setIsPressed(false)}}
     >
-      {number}
     </div>
   )
 }

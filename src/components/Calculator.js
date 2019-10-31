@@ -1,54 +1,42 @@
-import React, { useRef, useState, useEffect } from 'react';
-
-import NumberFormat from 'react-number-format';
-
+import React, { useState } from 'react';
+import numeral from 'numeral'
 import { evaluate } from 'mathjs'
 
 import NumberButton from './NumberButton';
 import OffButton from './OffButton';
 import DecimalButton from './DecimalButton';
-import OperandButton from './OperandButton';
+import OperatorButton from './OperatorButton';
 
 import './Calculator.scss';
 
-const MAX_DISPLAY_LENGTH = 10
-
 function Calculator () {
   const [displayValue, setDisplayValue] = useState('')
-  const [previousValue, setPreviousValue] = useState('')
   const [currentOperation, setCurrentOperation] = useState(null)
-  // const [previousOperation, setPreviousOperation] = useState('')
   const [pressedBtn, setPressedBtn] = useState('')
-  let displayInputRef = useRef(null)
   const [expression, setExpression] = useState('')
-  const [initialValue, setInitialValue] = useState('0')
+  const [initialValue, setInitialValue] = useState(0)
 
+  const zeroTotal = (val) => {
+    return parseFloat(val) - parseInt(val) === 0
+  }
 
-  useEffect(() => {
-    console.log('displayInputRef: ', displayInputRef)
-    if (displayInputRef.current) {
-      displayInputRef.current.focus()
+  const endsWithDecimal = (val) => {
+    return displayValue && '.' === displayValue.slice(-1)
+  }
+
+  const addDecimalToDisplay = () => {
+    if (displayValue && displayValue.includes('.')) {
+      return
     }
-  })
 
-  const addDecimalPoint = () => {
-    const test = parseFloat(displayValue) - parseInt(displayValue)
-    console.log('test: ', test)
-    if (!displayValue || (parseFloat(displayValue) - parseInt(displayValue)) === 0) {
-      if (null === currentOperation) {
-        setExpression('')
-        setInitialValue(0)
+    if (!displayValue || zeroTotal(displayValue)) {
+      if (!displayValue || !endsWithDecimal(displayValue)) {
+        setDisplayValue((displayValue || '0') + '.')
       }
-      console.log('wtf', (displayValue || '0') + '.')
-      setDisplayValue((displayValue || '0') + '.')
-      if (!displayValue) {
-        setInitialValue('0.')
-      }
-    }    
+    }
   }
 
   const addNumber = (num) => {
-    // console.log('the num: ', num, currentOperation)
     if (null === currentOperation) {
       setExpression('')
       setInitialValue(0)
@@ -62,159 +50,142 @@ function Calculator () {
 
   const clearCalculator = () => {
     setCurrentOperation(null)
-    setDisplayValue('')
-    setInitialValue('0')
+    setDisplayValue('0')
+    setInitialValue(0)
     setExpression('')
   }
 
   const handleEquals = () => {
-
     const intermediateExpression = expression + displayValue  
     setCurrentOperation(null)
-    // console.log('intermediateExpression: ', intermediateExpression)
     
     try {
       let result = evaluate(intermediateExpression)
       if (!Number.isFinite(result) || Number.isNaN(result)) {
         result = 0
       }
-      console.log(result)
-      console.log('result.length: ', result.length)
-      setInitialValue(result.toPrecision(6))
+
+      setInitialValue(result)
       setExpression(result)
       setDisplayValue('')
     } catch (err) {
-      // setDisplayValue(displayValue)
+      //
     }
-
   }
 
   const handleTextChange = (val) => {
     const allowedValues = /[0-9|+|-|*|/|%|.]+/g
-    console.log('hello')
-    console.log('val: ', val)
+
     if (val && !allowedValues.test(val)) {
       return null
     }
 
-    console.log('currOperation: ', currentOperation)
-
     if (null === currentOperation) {
       setExpression('')
     }
+
     setDisplayValue(val)
     setCurrentOperation(null)
   }
 
-
-
-  const atMaxDisplayLength = () => {
-    return displayValue.length >= MAX_DISPLAY_LENGTH
-  }
-
-  // console.log('displayValue: ', displayValue)
-  let initStr = initialValue.toString()
-  console.log('initStr.length: ', initStr.length)
-
-  const trimResult = (result) => {
-    let trimmedResult = result.toString()
-    
-    return trimmedResult
-  }
-
   const setOperation = (operation) => {
-    console.log('currentOperation: ', currentOperation)
-
+    let operationInput = operation
+    const endsWithOperator = /[+|%|*|-|\/]$/;
+    
     if ('%' === operation) {
-      operation = '*0.01*'
+      operationInput = '*0.01*'
     }
     
-    setCurrentOperation(operation)
+    setCurrentOperation(operationInput)
     
     let intermediateExpression = expression + displayValue
-    console.log('intermediateExpression: ', intermediateExpression)
     
-    try {
-      let result = evaluate(intermediateExpression)
-      if (!Number.isFinite(result) || Number.isNaN(result)) {
-        result = 0
+    if (endsWithOperator.test(intermediateExpression)) {
+      const exp = intermediateExpression.substring(0, intermediateExpression.length - 1)
+      setExpression(exp + operationInput)
+    } else {
+      try {
+        let result = evaluate(intermediateExpression)
+        if (!Number.isFinite(result) || Number.isNaN(result)) {
+          result = 0
+        }
+        setInitialValue(result)
+      } catch (err) {
+        console.log(err)
       }
-      console.log('initial value', result)
-      setInitialValue(trimResult(result))
-    } catch (err) {
-      console.log(err)
-      // setDisplayValue(displayValue)
+      setExpression(intermediateExpression + operationInput)
     }
-    
-    setExpression(intermediateExpression + operation)
- 
 
     setDisplayValue('')
-
-    
-
   }
-
 
   const turnOffCalculator = () => {
     setDisplayValue('')
+    setInitialValue(0)
+    setCurrentOperation(null)
   }
 
-
+  const placeholderFormat = (val) => {
+    if (val) {
+      let decimals = 0
+      try {
+        decimals = String(val).split('.')[1].length || 0
+      } catch (err) {}
+      return numeral(val).format(decimals < 24 ? '0,0.'+Array(decimals).fill(0).join('') : '0,0.0e+0') 
+    }
+  }
 
   return (
     <div className="calculator">
-      <NumberFormat
-        thousandSeparator={true}
+      <input
         type="text"
-        displayType="input"
         className="display"
         onChange={(e) => { handleTextChange(e.target.value) } }
-        value={displayValue}
-        getInputRef={(el) => { displayInputRef = el }}
-        placeholder={initialValue}
+        value={ displayValue }
+        placeholder={ placeholderFormat(initialValue) || '0' }
       />
 
       <div className="btn-wrap">
         <OffButton customClass="grid-1 off" powerOff={turnOffCalculator.bind(this)} />
+        
         <div
           className={`btn clear grid-2 ${pressedBtn === 'clear' ? 'pressed' : ''}`}
-          onClick={() => { clearCalculator()} }
-          onMouseDown={() => { setPressedBtn('clear')} }
-          onMouseUp={() => { setPressedBtn('')} }
-          >
-            C
-        </div>
-        <OperandButton customClass="grid-3 percent" operator="%" setOperation={setOperation.bind(this)} />
-        <OperandButton customClass="grid-4 divide" operator="/" setOperation={setOperation.bind(this)} />
-
-        <NumberButton customClass="grid-5" addNumber={addNumber.bind(this)} number="7" />
-        <NumberButton customClass="grid-6" addNumber={addNumber.bind(this)} number="8" />
-        <NumberButton customClass="grid-7" addNumber={addNumber.bind(this)} number="9" />
-        <OperandButton customClass="grid-8 multiply" operator="*" setOperation={setOperation.bind(this)} />
+          onPointerDown={() => { setPressedBtn('clear') }}
+          onPointerUp={() => { clearCalculator(); setPressedBtn('') }}
+        />
         
-        <NumberButton customClass="grid-9" addNumber={addNumber.bind(this)} number="4" />
-        <NumberButton customClass="grid-10" addNumber={addNumber.bind(this)} number="5" />
-        <NumberButton customClass="grid-11" addNumber={addNumber.bind(this)} number="6" />
-        <OperandButton customClass="grid-12 minus" operator="-" setOperation={setOperation.bind(this)} />
+        <OperatorButton operator="%" customClass="grid-3 percent" setOperation={ setOperation } />
+        <OperatorButton operator="/" customClass="grid-4 divide" setOperation={ setOperation } />
         
-        <NumberButton customClass="grid-13" addNumber={addNumber.bind(this)} number="1" />
-        <NumberButton customClass="grid-14" addNumber={addNumber.bind(this)} number="2" />
-        <NumberButton customClass="grid-15" addNumber={addNumber.bind(this)} number="3" />
-        <OperandButton customClass="grid-16 plus" operator="+" setOperation={setOperation} />
+        <NumberButton number="7" customClass="grid-5" addNumber={ addNumber } />
+        <NumberButton number="8" customClass="grid-6" addNumber={ addNumber } />
+        <NumberButton number="9" customClass="grid-7" addNumber={ addNumber } />
+        
+        <OperatorButton operator="*" customClass="grid-8 multiply" setOperation={setOperation.bind(this)} />
+        
+        <NumberButton number="4" customClass="grid-9" addNumber={ addNumber } />
+        <NumberButton number="5" customClass="grid-10" addNumber={ addNumber } />
+        <NumberButton number="6" customClass="grid-11" addNumber={ addNumber } />
+        
+        <OperatorButton operator="-" customClass="grid-12 minus" setOperation={setOperation.bind(this)} />
+        
+        <NumberButton number="1" customClass="grid-13" addNumber={ addNumber } />
+        <NumberButton number="2" customClass="grid-14" addNumber={ addNumber } />
+        <NumberButton number="3" customClass="grid-15" addNumber={ addNumber } />
+        
+        <OperatorButton operator="+" customClass="grid-16 plus" setOperation={setOperation} />
 
-        <NumberButton customClass="grid-17" addNumber={addNumber.bind(this)} number="0" />
-        <DecimalButton customClass="grid-18" addDecimal={addDecimalPoint} />
+        <NumberButton number="0" customClass="grid-17" addNumber={ addNumber } />
+        
+        <DecimalButton customClass="grid-18" addDecimal={addDecimalToDisplay} />
+
         <div
-          className={`btn bottom-row equals grid-19 ${pressedBtn === 'equals' ? 'pressed' : ''}`}
-          onClick={() => { handleEquals() } }
-          onMouseDown={() => {setPressedBtn('equals')}}
-          onMouseUp={() => {setPressedBtn('')}}
-          >
-            =
-          </div>
+          className={`btn equals grid-19 ${pressedBtn === 'equals' ? 'pressed' : ''}`}
+          onClick={() => { handleEquals() }}
+          onMouseDown={() => { setPressedBtn('equals') }}
+          onMouseUp={() => { setPressedBtn('') }}
+        />
       </div>
-      
     </div>
   )
 }

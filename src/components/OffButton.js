@@ -5,10 +5,8 @@ function OffButton ({ customClass, powerOff }) {
   return (
       <div
         className={`btn off ${customClass} ${isPressed ? 'pressed' : ''}`}
-        onMouseDown={() => {setIsPressed(true)}}
-        onMouseUp={() => {setIsPressed(false)} }
-        onClick={() => { powerOff() }}>
-      Off
+        onPointerDown={() => {setIsPressed(true)}}
+        onPointerUp={() => { powerOff(); setIsPressed(false)} }>
     </div>
   )
 }
