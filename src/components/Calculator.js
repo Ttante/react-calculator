@@ -69,7 +69,7 @@ function Calculator () {
       setExpression(result)
       setDisplayValue('')
     } catch (err) {
-      //
+      console.log(err)
     }
   }
 
@@ -97,7 +97,7 @@ function Calculator () {
     }
     
     setCurrentOperation(operationInput)
-    
+
     let intermediateExpression = expression + displayValue
     
     if (endsWithOperator.test(intermediateExpression)) {
