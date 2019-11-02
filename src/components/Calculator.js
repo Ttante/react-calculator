@@ -17,6 +17,7 @@ function Calculator () {
   const [initialValue, setInitialValue] = useState(0)
 
   const zeroTotal = (val) => {
+    // is a float if false
     return parseFloat(val) - parseInt(val) === 0
   }
 
@@ -37,6 +38,7 @@ function Calculator () {
   }
 
   const addNumber = (num) => {
+    // add number to text display
     if (null === currentOperation) {
       setExpression('')
       setInitialValue(0)
@@ -89,8 +91,9 @@ function Calculator () {
   }
 
   const setOperation = (operation) => {
-    let operationInput = operation
+    // endsWithOperator was intended for keyboard input that I decided not to implement for time constraints
     const endsWithOperator = /[+|%|*|-|\/]$/;
+    let operationInput = operation
     
     if ('%' === operation) {
       operationInput = '*0.01*'
@@ -126,6 +129,7 @@ function Calculator () {
   }
 
   const placeholderFormat = (val) => {
+    // handle scientific notation for big decimals
     if (val) {
       let decimals = 0
       try {
