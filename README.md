@@ -3,7 +3,7 @@
 ## Overview
 Classic style calculator built w/React + Hooks and utilizing mathjs.
 
-The interface is mobile & touch friendly, and they keyboard input may be
+The interface is mobile & touch friendly. Keyboard input may be
 used for numbers, however operators must be clicked or pressed.
 
 ## Under The Hood
