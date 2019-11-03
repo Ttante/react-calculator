@@ -91,7 +91,6 @@ function Calculator () {
   }
 
   const setOperation = (operation) => {
-    // endsWithOperator was intended for keyboard input that I decided not to implement for time constraints
     const endsWithOperator = /[+|%|*|-|\/]$/;
     let operationInput = operation
     

@@ -2,7 +2,7 @@ import React from 'react';
 
 function ClearButton ({ clear }) {
   return (
-    <div onClick={clear()}>
+    <div onPointerUp={ clear() }>
       C
     </div>
   )
